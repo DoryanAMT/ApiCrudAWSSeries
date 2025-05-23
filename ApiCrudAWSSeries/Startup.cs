@@ -2,6 +2,7 @@ using Amazon.Lambda.Annotations;
 using ApiCrudAWSSeries.Data;
 using ApiCrudAWSSeries.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ApiCrudAWSSeries;
@@ -13,7 +14,14 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddTransient<RepositorySeries>();
-        string connectionString = "";
+        
+        var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", true);
+        var configuration = builder.Build();
+
+        string connectionString = configuration.GetConnectionString("MySql");
+        services.AddSingleton<IConfiguration>(configuration);
         services.AddDbContext<SeriesContext>
             (options => options.UseMySQL(connectionString));
         //// Example of creating the IConfiguration object and
